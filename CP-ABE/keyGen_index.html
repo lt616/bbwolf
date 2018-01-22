@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> CP-ABE: KeyGen </title>
+</head>
+<body>
+	<h1> CP-ABE </h1> <h2> implemented by <b> C </b> </h2>
+	<br/>
+
+	<h2> KeyGen </h2>
+	<div class="source_code">
+		<pre>
+bswabe_prv_t* bswabe_keygen( bswabe_pub_t* pub,
+	 						bswabe_msk_t* msk,
+							char** attributes )
+{
+	bswabe_prv_t* prv;
+	element_t g_r;
+	element_t r;
+	element_t beta_inv;
+
+	/* initialize */
+
+	prv = malloc(sizeof(bswabe_prv_t)); <a href="#private key"> private key </a>
+
+	element_init_G2(prv->d, pub->p);
+	element_init_G2(g_r, pub->p);
+	element_init_Zr(r, pub->p);
+	element_init_Zr(beta_inv, pub->p);
+
+	prv->comps = g_array_new(0, 1, sizeof(bswabe_prv_comp_t));
+
+	/* compute */
+	<a href="#compute D"> //compute D </a>
+ 	element_random(r);
+	element_pow_zn(g_r, pub->gp, r);
+
+	element_mul(prv->d, msk->g_alpha, g_r);
+	element_invert(beta_inv, msk->beta);
+	element_pow_zn(prv->d, prv->d, beta_inv);
+
+	while( *attributes ) <a href="#for attributes"> //for attributes </a>
+	{
+		bswabe_prv_comp_t c;
+		element_t h_rp;
+		element_t rp;
+
+		c.attr = *(attributes++);
+
+		element_init_G2(c.d,  pub->p);
+		element_init_G1(c.dp, pub->p);
+		element_init_G2(h_rp, pub->p);
+		element_init_Zr(rp,   pub->p);
+		
+ 		element_from_string(h_rp, c.attr);
+ 		element_random(rp);
+
+		element_pow_zn(h_rp, h_rp, rp);
+
+		element_mul(c.d, g_r, h_rp);
+		element_pow_zn(c.dp, pub->g, rp);
+
+		element_clear(h_rp);
+		element_clear(rp);
+
+		g_array_append_val(prv->comps, c);
+	}
+
+	return prv;
+}
+
+		</pre>
+	</div>
+
+	<div class="comment_component">
+		<div id="private key">
+			<h3> private key </h3>
+			<ol>
+				<li> Private key struct:
+					<pre>
+		struct bswabe_prv_s
+		{
+			element_t d;   /* G_2 */
+			GArray* comps; /* bswabe_prv_comp_t's */
+		};
+					</pre>
+				</li>
+				<li>
+					comps = GArray(include &lt;glib.h&gt; ) bswabe_prv_comp_t <br/>
+					<a href="https://developer.gnome.org/glib/stable/glib-Arrays.html"> https://developer.gnome.org/glib/stable/glib-Arrays.html </a> <br/>
+					prv_comp_t struct: <br/>
+					<pre>
+		typedef struct
+		{
+			/* these actually get serialized */
+			char* attr;
+			element_t d;  /* G_2 */ //Dj
+			element_t dp; /* G_2 */ //Dj'
+
+			/* only used during dec (only by dec_merge) */
+			int used;
+			element_t z;  /* G_1 */
+			element_t zp; /* G_1 */
+		}
+		bswabe_prv_comp_t;
+					</pre>
+				</li>
+			</ol>
+		</div>
+		<hr/>
+		<div id="compute D">
+			<h3> compute D </h3>
+			<ol>
+				<li>
+					D(prv->d) = g ^ (alpha + gamma) / beta
+					(gama is fresh random variable)
+				</li>			
+			</ol>
+		</div>
+		<hr/>
+		<div id="for attributes">
+			<h3> for attributes </h3>
+			<ol>
+				<li>
+					Dj(c.d) = g^r * H(j)^rj <br/>
+					Dj'(c.dp) = g^rj <br/>
+					<span style="color:red"> BUT!!! Why rj here is a random number </span>
+				</li>
+			</ol>
+		</div>
+	</div>
+</body>
+</html>

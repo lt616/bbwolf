@@ -21,7 +21,8 @@
     <link href="vendor/simple-line-icons/css/simple-line-icons.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="css/resume.min.css" rel="stylesheet">
+    <link href="css/resume.min.css" rel="stylesheet"> 
+    <link href="css/bbwolf.css" rel="stylesheet"> 
 
   </head>
 
@@ -29,7 +30,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
       <a class="navbar-brand js-scroll-trigger" href="#page-top">
-        <span class="d-block d-lg-none">Start Bootstrap</span>
+        <span class="d-block d-lg-none">bbwolf.net</span>
         <span class="d-none d-lg-block">
           <img class="img-fluid img-profile rounded-circle mx-auto mb-2" src="img/avatar.jpg" alt="">
         </span>
@@ -44,7 +45,10 @@
           </li>
           <li class="nav-item">
             <a class="nav-link js-scroll-trigger" href="#resume">Resume</a>
-          </li>  
+          </li>
+          <li class="nav-item">
+            <a class="nav-link js-scroll-trigger" href="#project">Projects</a>
+          </li>    
         </ul>
       </div>
     </nav>
@@ -68,7 +72,7 @@
             <ul>
               <li> Applying master degree in US </li> 
               <li> Implementing a management software - Testing phase </li>
-              <li> Studying English: Working toward to an Advanced Diploma of Translating </li> 
+              <li> Studying English - Working toward to an Advanced Diploma of Translating </li> 
             </ul>
           </p>
           <!-- <ul class="list-inline list-social-icons mb-0">
@@ -308,6 +312,154 @@
             </div>
           </div> 
 
+        </div>
+      </section> 
+
+
+      <!-- project section -->
+      <section class="resume-section p-3 p-lg-5 d-flex flex-column" id="project">
+        <div class="my-auto">
+          <h1 class="mb-5" id="projects">Projects</h1>  
+
+          <ul class="nav nav-tabs"> 
+            <li> <a data-toggle="tab" href="#practical" class="btn"> <div class="subheading mb-3"> Professional Project </div> </a> </li> 
+            <li> <a data-toggle="tab" href="#ml" class="btn"> <div class="subheading mb-3"> Machine Learning &amp; AI </div> </a> </li>
+            <li> <a data-toggle="tab" href="#web" class="btn"> <div class="subheading mb-3"> Web applications </div> </a> </li> 
+            <li> <a data-toggle="tab" href="#os" class="btn"> <div class="subheading mb-3"> System &amp; Network </div> </a> </li> 
+          </ul>
+
+          <div class="tab-content"> 
+            <div id="practical" class="tab-pane fade in active"> 
+              <ul>
+                <li> <div class="diy-h3"> Smart management software for sanitation company </div> 
+                </li>
+              </ul>
+            </div>
+
+            <div id="ml" class="tab-pane fade"> 
+              Machine Learning &amp; AI
+            </div> 
+
+            <div id="web" class="tab-pane fade">
+              Web applications 
+            </div> 
+
+            <div id="os" class="tab-pane fade">
+              System &amp; Network 
+            </div>
+          </div> 
+
+          <br/> <br/> 
+
+          <!-- Professional Projects --> 
+          <div class="class_project" id="practical">
+            <div class="class_project_header row"> 
+              <div class="class_project_title col-9">
+                <h3> Smart management software for sanitation company </h3> 
+              </div> 
+
+              <div class="class_back_to_projects col-3"> 
+                <a href="#projects"> BACK TO PROJECTS </a>
+              </div>
+            </div> 
+
+            <div class="class_project_content"> 
+              <div class="diy-h4 col-10 align-self-center"> An outsourcing management platform built for a Chinese sanitation company. It was built using Reactjs on top of Meteor framework so that it can be deloyed into both a web application and an Android application. We used non-relational database MongoDB to store data. 
+              <br/> <br/> 
+              We worked in a team of 3, and orgnazised our development progress with the help of JIRA. In this porject, I worked 
+              as the team leader. 
+              <br/> <br/> 
+              We now finished all the web-side functionalities, as well as 90% functions for mobile side. Simultaneously, we are testing existing functions, improving our software's reliability. 
+              </div>            
+            </div>
+          </div> 
+
+          <br/> <br/> <br/> <br/> 
+
+          <!-- ML --> 
+          <div class="class_project" id="ml"> 
+            <div class="class_project_header row"> 
+              <div class="class_project_title col-9">
+                <h3> Online signature verification system based on HMM </h3> 
+              </div> 
+
+              <div class="class_back_to_projects col-3"> 
+                <a href="#projects"> BACK TO PROJECTS </a>
+              </div>
+            </div> 
+
+            <div class="diy-h4"> It is an online signature verification system using Gaussian - Hidden Markov Chain. It provides high accuracy and efficiency even if the size of training data is very small (only 15 samples for training a model). 
+            <br/> <br/> 
+            By examining ERR (Error Equal Rate) on testing data, it shows that my implementation achieved accuracy greater than 90%. 
+            <br/> <br/> 
+            <a onclick="display('comp4121_report')"> Click here to see the whole report => </a> 
+            </div> 
+
+
+
+            <div id="comp4121_report" class="element-hidden"> 
+              <embed src="comp4121-report.pdf" type="application/pdf"   height="600px" width="100%"> 
+              <a onclick="undisplay('comp4121_report')"> Click here to hide the report </a> 
+            </div>
+          </div> 
+
+          <br/> <br/> <br/> <br/> 
+
+          <!-- web --> 
+          <div class="class_project" id="web"> 
+            <div class="class_project_header row"> 
+              <div class="class_project_title col-9">
+                <h3> Bitter - A simple twitter-like social website </h3> 
+              </div> 
+
+              <div class="class_back_to_projects col-3"> 
+                <a href="#projects"> BACK TO PROJECTS </a>
+              </div>
+            </div> 
+
+            <div >
+              
+            </div>
+
+            <a href="http://cgi.cse.unsw.edu.au/~z5088359/ass2/bitter.cgi"> Click here to go to the Bitter website => 
+            <br/> 
+            you can sign up a new account, but also as a visitor using USERNAME: visitor PASSWORD: visitor. </a>
+          </div> 
+
+          <br/> <br/> <br/> <br/> 
+
+          <div class="class_project" id="os"> 
+            <div class="class_project_header row"> 
+              <div class="class_project_title col-9">
+                <h3>  </h3> 
+              </div> 
+
+              <div class="class_back_to_projects col-3"> 
+                <a href="#projects"> BACK TO PROJECTS </a>
+              </div>
+            </div>
+          </dir>
+
+          <!-- os --> 
+          <div class="class_project" id="os"> 
+            <div class="class_project_header row"> 
+              <div class="class_project_title col-9">
+                <h3> MoivE - A movie ticket booking website </h3> 
+              </div> 
+
+              <div class="class_back_to_projects col-3"> 
+                <a href="#projects"> BACK TO PROJECTS </a>
+              </div>
+            </div> 
+
+            It is my first web application, developed when I was a second year student, as an assessment for a course. We are not allowed to use any libraries in this assignment, so all the functions such as session-based shopping cart and animations are implemented by myself. Relational database MySQL is used for storing order information. 
+
+            <a href=""> Click here for viewing a demo verision of MoviE web site => </a>
+          </dir>
+
+        </div>
+
+      </section>
 
 
     <!-- Bootstrap core JavaScript -->
@@ -315,10 +467,13 @@
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Plugin JavaScript -->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script> 
+
+
 
     <!-- Custom scripts for this template -->
-    <script src="js/resume.min.js"></script>
+    <script src="js/resume.min.js"></script> 
+    <script src="js/bbwolf.js"></script> 
 
   </body>
 

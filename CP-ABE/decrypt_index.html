@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> CP-ABE: Decrypt </title>
+</head>
+<body>
+	<h1> CP-ABE </h1> <h2> implemented by <b> C </b> </h2>
+	<br/>
+	<h2> Decrypt </h2>
+	<div class="source code">
+		<h3> Source code: </h3> <br/>
+		<pre>
+		int
+		bswabe_dec( bswabe_pub_t* pub, bswabe_prv_t* prv, bswabe_cph_t* cph, element_t m )
+		{
+			element_t t;
+
+			element_init_GT(m, pub->p);
+			element_init_GT(t, pub->p);
+
+			check_sat(cph->p, prv); <a href="#check satisfication"> //check satisfication </a>
+			if( !cph->p->satisfiable )
+			{
+				raise_error("cannot decrypt, attributes in key do not satisfy policy\n");
+				return 0;
+			}
+
+		/* 	if( no_opt_sat ) */
+		/* 		pick_sat_naive(cph->p, prv); */
+		/* 	else */
+			pick_sat_min_leaves(cph->p, prv); <a href="#pick leaves"> //pick leaves </a>
+
+		/* 	if( dec_strategy == DEC_NAIVE ) */
+		/* 		dec_naive(t, cph->p, prv, pub); */
+		/* 	else if( dec_strategy == DEC_FLATTEN ) */
+			dec_flatten(t, cph->p, prv, pub);
+		/* 	else */
+		/* 		dec_merge(t, cph->p, prv, pub); */
+
+			element_mul(m, cph->cs, t); /* num_muls++; */
+
+			pairing_apply(t, cph->c, prv->d, pub->p); /* num_pairings++; */
+			element_invert(t, t);
+			element_mul(m, m, t); /* num_muls++; */
+
+			return 1;
+		}
+		</pre>
+	</div>
+	<div class="comment_component">
+		<div id="check satisfication">
+			<h3> check satisfication </h3>
+			<ol>
+				<li> check_sat function <br/> check if every node satisfies access policy, otherwise abort.
+					<pre>
+		void
+		check_sat( bswabe_policy_t* p, bswabe_prv_t* prv )
+		{
+			int i, l;
+
+			p->satisfiable = 0;
+			if( p->children->len == 0 )
+			{
+				for( i = 0; i &lt; prv->comps->len; i++ )
+					if( !strcmp(g_array_index(prv->comps, bswabe_prv_comp_t, i).attr,
+											p->attr) )
+					{
+						p->satisfiable = 1;
+						p->attri = i;
+						break;
+					}
+			}
+			else
+			{
+				for( i = 0; i &lt; p->children->len; i++ )
+					check_sat(g_ptr_array_index(p->children, i), prv);
+
+				l = 0;
+				for( i = 0; i &lt; p->children->len; i++ )
+					if( ((bswabe_policy_t*) g_ptr_array_index(p->children, i))->satisfiable )
+						l++;
+
+				if( l >= p->k )
+					p->satisfiable = 1;
+			}
+		}
+					</pre>
+				</li>
+			</ol>
+		</div>
+		<hr/>
+		<div id="pick leaves">
+			<h3> pick leaves </h3>
+			<ol>
+				<li> pick_sat_min_leaves function <br/> calculate number of leaves each node correspondings to.
+					<pre>
+		void
+		pick_sat_min_leaves( bswabe_policy_t* p, bswabe_prv_t* prv )
+		{
+			int i, k, l;
+			int* c;
+
+			assert(p->satisfiable == 1);
+
+			if( p->children->len == 0 )
+				p->min_leaves = 1;
+			else
+			{
+				for( i = 0; i &lt; p->children->len; i++ )
+					if( ((bswabe_policy_t*) g_ptr_array_index(p->children, i))->satisfiable )
+						pick_sat_min_leaves(g_ptr_array_index(p->children, i), prv);
+
+				c = alloca(sizeof(int) * p->children->len);
+				for( i = 0; i &lt; p->children->len; i++ )
+					c[i] = i;
+
+				cur_comp_pol = p;
+				qsort(c, p->children->len, sizeof(int), cmp_int);
+
+				p->satl = g_array_new(0, 0, sizeof(int));
+				p->min_leaves = 0;
+				l = 0;
+
+				for( i = 0; i &lt; p->children->len &amp;&amp; l &lt; p->k; i++ )
+					if( ((bswabe_policy_t*) g_ptr_array_index(p->children, c[i]))->satisfiable )
+					{
+						l++;
+						p->min_leaves += ((bswabe_policy_t*) g_ptr_array_index(p->children, c[i]))->min_leaves;
+						k = c[i] + 1;
+						g_array_append_val(p->satl, k);
+					}
+				assert(l == p->k);
+			}
+		}
+					</pre>
+				</li>
+			</ol>
+		</div>
+	</div>
+</body>
+</html>

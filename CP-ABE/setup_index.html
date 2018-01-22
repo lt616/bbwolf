@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> CP-ABE: Setup </title>
+</head>
+<body>
+	<h1> CP-ABE </h1> <h2> implemented by <b> C </b> </h2>
+	<br/>
+	<h2> Setup </h2>
+	<div class="source_code">
+		<h3> Source code: </h3> <br/>
+		<pre>
+			bswabe_setup( bswabe_pub_t** pub, bswabe_msk_t** msk )
+			{
+				element_t alpha;
+			
+				/* initialize */
+			 
+				*pub = malloc(sizeof(bswabe_pub_t)); <a href="#public key"> //public key </a>
+				*msk = malloc(sizeof(bswabe_msk_t)); <a href="#manage key"> //manage key </a>
+			
+				(*pub)->pairing_desc = strdup(TYPE_A_PARAMS); <a href="#typeA" class="comment"> //typeA </a>
+				pairing_init_set_buf((*pub)->p, (*pub)->pairing_desc, strlen((*pub)->pairing_desc));
+			
+				element_init_G1((*pub)->g,           (*pub)->p);
+				element_init_G1((*pub)->h,           (*pub)->p);
+				element_init_G2((*pub)->gp,          (*pub)->p);
+				element_init_GT((*pub)->g_hat_alpha, (*pub)->p);
+				element_init_Zr(alpha,               (*pub)->p);
+				element_init_Zr((*msk)->beta,        (*pub)->p);
+				element_init_G2((*msk)->g_alpha,     (*pub)->p);
+			
+				/* compute */
+				<a href="#compute random element"> //compute random element </a>
+			 	element_random(alpha);
+			 	element_random((*msk)->beta);
+				element_random((*pub)->g);
+				element_random((*pub)->gp);
+			
+				<a href="#compute exponent element"> //compute exponent element </a>
+				element_pow_zn((*msk)->g_alpha, (*pub)->gp, alpha);
+				element_pow_zn((*pub)->h, (*pub)->g, (*msk)->beta);
+			  pairing_apply((*pub)->g_hat_alpha, (*pub)->g, (*msk)->g_alpha, (*pub)->p); <a href="#pair apply"> //pair apply: g_hat_alpha = e(g, g_alpha) same as GT = e(G1, G2) </a>
+			}	
+		</pre>
+	</div>
+	<div class="comment_content">
+		<div id="public key">
+			<h3> public key: </h3>
+			<ol>
+				<li> public key struct:
+					<pre>
+		struct bswabe_pub_s
+		{
+			char* pairing_desc;
+			pairing_t p;
+			element_t g;           /* G_1 */
+			element_t h;           /* G_1 */
+			element_t gp;          /* G_2 */
+			element_t g_hat_alpha; /* G_T */
+		};
+					</pre>
+					initial G (G1, G2, With symmetric pairings, G1 = G2.)  <br/>
+					<pre>
+		element_init_G1((*pub)->g, (*pub)->p); <br/>
+		element_init_G1((*pub)->h, (*pub)->p); <br/>
+		element_init_G2((*pub)->gp, (*pub)->p); <br/>
+		element_init_GT((*pub)->g_hat_alpha, (*pub)->p)
+					</pre>
+				</li>
+				<li>
+					pk = G0 (pub->g), <br/>g (pub->gp), <br/>h = g ^ beta (pub->h), <br/>f = g ^ 1/beta (seems not exist), <br/>e(g, g) (msk->g_hat_alpha)
+				</li>
+			</ol>
+		</div>
+		<hr/>
+
+		<div id="typeA">
+			<h3> typeA: </h3>
+			<ol>
+				<li>
+					pairing_init_set_buf(pairing_t pairing, const char *s, size_t len)
+					<br/>
+					<i> <a href="https://crypto.stanford.edu/pbc/manual/ch03s01.html"> initializing pairing references </a>l </i>
+				</li>
+				<li>
+					const char *s for typeA :: <a href="https://crypto.stanford.edu/pbc/manual/ch08s03.html"> TYPE_A_PARAMS </a> 
+					<br/>
+					<pre>
+		struct: q h r 
+				expr2 expr1
+				sign1 sign0 
+					</pre>
+					<pre>
+		#define TYPE_A_PARAMS \
+		"type a\n" \
+		"q 87807107996633125224377819847540498158068831994142082" \
+		"1102865339926647563088022295707862517942266222142315585" \
+		"8769582317459277713367317481324925129998224791\n" \
+		"h 12016012264891146079388821366740534204802954401251311" \
+		"822919615131047207289359704531102844802183906537786776\n" \
+		"r 730750818665451621361119245571504901405976559617\n" \
+		"exp2 159\n" \
+		"exp1 107\n" \
+		"sign1 1\n" \
+		"sign0 1\n"
+					</pre>
+				</li>
+			</ol>
+			<hr/>
+		</div>
+
+		<div id="manage key">
+			<h3> manage key: </h3>
+			<ol>
+				<li> manage key struct
+					<pre>
+		struct bswabe_msk_s
+		{
+			element_t beta;    /* Z_r */
+			element_t g_alpha; /* G_2 */
+		};
+					</pre>
+					Initialize e to be an element of the ring Z_r of pairing. r is the order of the groups G1, G2 and GT that are involved in the pairing.
+					<pre>
+		element_init_Zr(alpha,               (*pub)->p); <br/>
+		element_init_Zr((*msk)->beta,        (*pub)->p);
+					</pre>
+				</li>
+				<li>
+					MK = beta (pub->beta, g->a_alpha), <br/>g (pub->gp)
+				</li>
+			</ol>
+		</div>
+		<hr/>
+
+		<div id="pair apply">
+			<h3> pair apply: </h3>
+			<ol>
+				<li>
+					GT = e(G1, G2)
+					<pre>
+		pairing_apply((*pub)->g_hat_alpha, (*pub)->g, (*msk)->g_alpha, (*pub)->p);
+					</pre>					
+				</li>
+			</ol>
+		</div>
+		<hr/>
+
+		<div id="#compute random element">
+			<h3> compute random element </h3>
+			<ol>
+				<li>
+					If the e lies in a finite algebraic structure, assigns a uniformly random element to e.
+					<pre>
+	 	element_random(alpha); <br/>
+	 	element_random((*msk)->beta); <br/>
+		element_random((*pub)->g); <br/>
+		element_random((*pub)->gp);
+					</pre>
+					<a href="https://crypto.stanford.edu/pbc/manual/ch04s08.html"> random elements reference </a>
+				</li>
+			</ol>
+		</div>
+		<hr/>
+
+		<div id="#compute exponent element">
+			<h3> compute exponent element </h3>
+			<ol>
+				<li>
+					Set x = an, where n is an element of a ring ZN for some N (typically the order of the algebraic structure x lies in).
+					<pre>
+		element_pow_zn((*msk)->g_alpha, (*pub)->gp, alpha); <br/>
+		element_pow_zn((*pub)->h, (*pub)->g, (*msk)->beta);
+					</pre>
+					<a href="https://crypto.stanford.edu/pbc/manual/ch04s05.html"> compute exponent element </a>
+				</li>
+			</ol>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> CP-ABE: Encrypt </title>
+</head>
+<body>
+	<h1> CP-ABE </h1> <h2> implemented by <b> C </b> </h2>
+	<br/>
+	<h2> Encrypt </h2>
+	<div class="source_code">
+		<h3> Source code: </h3>
+		<pre>
+bswabe_cph_t*
+bswabe_enc( bswabe_pub_t* pub, element_t m, char* policy )
+{
+	bswabe_cph_t* cph;
+ 	element_t s;
+
+	/* initialize */
+
+	cph = malloc(sizeof(bswabe_cph_t)); <a href="#ciper text"> //cipher text </a>
+
+	element_init_Zr(s, pub->p);
+	element_init_GT(m, pub->p);
+	element_init_GT(cph->cs, pub->p);
+	element_init_G1(cph->c,  pub->p);
+	cph->p = parse_policy_postfix(policy);
+
+	/* compute */
+
+ 	element_random(m);
+ 	element_random(s);
+	element_pow_zn(cph->cs, pub->g_hat_alpha, s);
+	element_mul(cph->cs, cph->cs, m);
+
+	element_pow_zn(cph->c, pub->h, s);
+
+	fill_policy(cph->p, pub, s); <a href="#fill into policy_tree"> //fill into policy_tree </a>
+
+	return cph;
+}
+		</pre>
+	</div>
+
+	<div class="comment_component">
+		<div id="cipher text">
+			<h3> cipher text </h3>
+			<ol>
+				<li> cipher text struct:
+					<pre>
+		struct bswabe_cph_s
+		{
+			element_t cs; /* G_T */
+			element_t c;  /* G_1 */
+			bswabe_policy_t* p;
+		};
+
+		c = h ^ s
+		cs =  M * e(g, g) ^ alpha * s
+		(Cy and Cy' are inside policy tree)
+					</pre>
+				</li>
+			</ol>
+		</div>
+		<hr/>
+
+		<div id="fill into policy_tree">
+			<h3> fill into policy_tree </h3>
+			<ol>
+				<li> fill policy function
+					<pre>
+		void
+		fill_policy( bswabe_policy_t* p, bswabe_pub_t* pub, element_t e )
+		{
+			int i;
+			element_t r;
+			element_t t;
+			element_t h;
+
+			element_init_Zr(r, pub->p);
+			element_init_Zr(t, pub->p);
+			element_init_G2(h, pub->p);
+
+			p->q = rand_poly(p->k - 1, e);
+
+			if( p->children->len == 0 )
+			{
+				element_init_G1(p->c,  pub->p);
+				element_init_G2(p->cp, pub->p);
+
+				element_from_string(h, p->attr);
+				element_pow_zn(p->c,  pub->g, p->q->coef[0]); //p->c(Cy = g^qy(0))
+				element_pow_zn(p->cp, h,      p->q->coef[0]); //p->cp(Cy' = H(att(y))^qy(0))
+			}
+			else
+				for( i = 0; i &lt; p->children->len; i++ )
+				{
+					element_set_si(r, i + 1);
+					eval_poly(t, p->q, r);
+					fill_policy(g_ptr_array_index(p->children, i), pub, t);
+				}
+
+			element_clear(r);
+			element_clear(t);
+			element_clear(h);
+		}
+					</pre>
+				</li>
+				<li> Helper function
+					<pre>
+create new node function
+		bswabe_policy_t*
+		base_node( int k, char* s )
+		{
+			bswabe_policy_t* p;
+
+			p = (bswabe_policy_t*) malloc(sizeof(bswabe_policy_t));
+			p->k = k;
+			p->attr = s ? strdup(s) : 0;
+			p->children = g_ptr_array_new();
+			p->q = 0;
+
+			return p;
+		}
+
+
+parse policy function
+		/*
+			TODO convert this to use a GScanner and handle quotes and / or
+			escapes to allow attributes with whitespace or = signs in them
+		*/
+
+		bswabe_policy_t*
+		parse_policy_postfix( char* s )
+		{
+			char** toks;
+			char** cur_toks;
+			char*  tok;
+			GPtrArray* stack; /* pointers to bswabe_policy_t's */
+			bswabe_policy_t* root;
+
+			toks     = g_strsplit(s, " ", 0);
+			cur_toks = toks;
+			stack    = g_ptr_array_new();
+
+			while( *cur_toks )
+			{
+				int i, k, n;
+
+				tok = *(cur_toks++);
+
+				if( !*tok )
+					continue;
+
+				if( sscanf(tok, "%dof%d", &k, &n) != 2 )
+					/* push leaf token */
+					g_ptr_array_add(stack, base_node(1, tok));
+				else
+				{
+					bswabe_policy_t* node;
+
+					/* parse "kofn" operator */
+
+					if( k < 1 )
+					{
+						raise_error("error parsing \"%s\": trivially satisfied operator \"%s\"\n", s, tok);
+						return 0;
+					}
+					else if( k > n )
+					{
+						raise_error("error parsing \"%s\": unsatisfiable operator \"%s\"\n", s, tok);
+						return 0;
+					}
+					else if( n == 1 )
+					{
+						raise_error("error parsing \"%s\": identity operator \"%s\"\n", s, tok);
+						return 0;
+					}
+					else if( n > stack->len )
+					{
+						raise_error("error parsing \"%s\": stack underflow at \"%s\"\n", s, tok);
+						return 0;
+					}
+					
+					/* pop n things and fill in children */
+					node = base_node(k, 0);
+					g_ptr_array_set_size(node->children, n);
+					for( i = n - 1; i >= 0; i-- )
+						node->children->pdata[i] = g_ptr_array_remove_index(stack, stack->len - 1);
+					
+					/* push result */
+					g_ptr_array_add(stack, node);
+				}
+			}
+
+			if( stack->len > 1 )
+			{
+				raise_error("error parsing \"%s\": extra tokens left on stack\n", s);
+				return 0;
+			}
+			else if( stack->len < 1 )
+			{
+				raise_error("error parsing \"%s\": empty policy\n", s);
+				return 0;
+			}
+
+			root = g_ptr_array_index(stack, 0);
+
+		 	g_strfreev(toks);
+		 	g_ptr_array_free(stack, 0);
+
+			return root;
+		}
+
+
+create new polynomial
+		bswabe_polynomial_t*
+		rand_poly( int deg, element_t zero_val )
+		{
+			int i;
+			bswabe_polynomial_t* q;
+
+			q = (bswabe_polynomial_t*) malloc(sizeof(bswabe_polynomial_t));
+			q->deg = deg;
+			q->coef = (element_t*) malloc(sizeof(element_t) * (deg + 1));
+
+			for( i = 0; i < q->deg + 1; i++ )
+				element_init_same_as(q->coef[i], zero_val);
+
+			element_set(q->coef[0], zero_val);
+
+			for( i = 1; i < q->deg + 1; i++ )
+		 		element_random(q->coef[i]);
+
+			return q;
+		}
+
+
+evaluate polynomial expression
+		void
+		eval_poly( element_t r, bswabe_polynomial_t* q, element_t x )
+		{
+			int i;
+			element_t s, t;
+
+			element_init_same_as(s, r);
+			element_init_same_as(t, r);
+
+			element_set0(r);
+			element_set1(t);
+
+			for( i = 0; i < q->deg + 1; i++ )
+			{
+				/* r += q->coef[i] * t */
+				element_mul(s, q->coef[i], t);
+				element_add(r, r, s);
+
+				/* t *= x */
+				element_mul(t, t, x);
+			}
+
+			element_clear(s);
+			element_clear(t);
+		}
+			
+					</pre>
+				</li>
+			</ol>
+		</div>
+	</div>
+</body>
+</html>
