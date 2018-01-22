@@ -322,37 +322,58 @@
           <h1 class="mb-5" id="projects">Projects</h1>  
 
           <ul class="nav nav-tabs"> 
-            <li> <a data-toggle="tab" href="#practical" class="btn"> <div class="subheading mb-3"> Professional Project </div> </a> </li> 
-            <li> <a data-toggle="tab" href="#ml" class="btn"> <div class="subheading mb-3"> Machine Learning &amp; AI </div> </a> </li>
-            <li> <a data-toggle="tab" href="#web" class="btn"> <div class="subheading mb-3"> Web applications </div> </a> </li> 
-            <li> <a data-toggle="tab" href="#os" class="btn"> <div class="subheading mb-3"> System &amp; Network </div> </a> </li> 
-          </ul>
+            <li class="nav-item active"> <a data-toggle="tab" href="#practical" class="btn active nav-link"> <div class="subheading mb-3"> Professional Project </div> </a> </li> 
+            <li class="nav-item"> <a data-toggle="tab" href="#ml" class="btn nav-link"> <div class="subheading mb-3"> Machine Learning &amp; AI </div> </a> </li>
+            <li class="nav-item"> <a data-toggle="tab" href="#web" class="btn nav-link"> <div class="subheading mb-3"> Web applications </div> </a> </li> 
+            <li class="nav-item"> <a data-toggle="tab" href="#os" class="btn nav-link"> <div class="subheading mb-3"> System &amp; Network </div> </a> </li> 
+          </ul> 
+
+          <br/> 
 
           <div class="tab-content"> 
-            <div id="practical" class="tab-pane fade in active"> 
-              <ul>
-                <li> <div class="diy-h3"> Smart management software for sanitation company </div> 
+            <div id="practical" class="tab-pane active"> 
+              <ol class="navbar-nav">
+                <li> <a href="#practical-0"> <div class="diy-h3"> Smart management software for sanitation company </div> </a> 
                 </li>
-              </ul>
+              </ol>
             </div>
 
             <div id="ml" class="tab-pane fade"> 
-              Machine Learning &amp; AI
+              <ol class="navbar-nav">
+                <li>
+                  <a href="#ml-0"> <div class="diy-h3"> Online signature verification system based on HMM </div> </a> 
+                </li> 
+              </ol>
             </div> 
 
             <div id="web" class="tab-pane fade">
-              Web applications 
+              <ol class="navbar-nav">
+                <li> <a href="#practical-0"> <div class="diy-h3"> Smart management software for sanitation company </div> </a> 
+                </li>
+
+                <li>  
+                  <a href="#web-1"> <div class="diy-h3"> Bitter - A simple twitter-like social website </div> </a>
+                </li> 
+
+                <li>
+                  <a href="#web-2"> <div class="diy-h3"> MoivE - A movie ticket booking website </div> </a> 
+                </li>
+              </ol>
             </div> 
 
-            <div id="os" class="tab-pane fade">
-              System &amp; Network 
+            <div id="os" class="tab-pane fade"> 
+              <ol class="navbar-nav"> 
+                <li> <div class="diy-h3"> A seL4-based multi-server OS used green thread library </div> </li>
+              </ol> 
             </div>
           </div> 
+
+          <br/> <hr/> 
 
           <br/> <br/> 
 
           <!-- Professional Projects --> 
-          <div class="class_project" id="practical">
+          <div class="class_project" id="practical-0">
             <div class="class_project_header row"> 
               <div class="class_project_title col-9">
                 <h3> Smart management software for sanitation company </h3> 
@@ -377,7 +398,7 @@
           <br/> <br/> <br/> <br/> 
 
           <!-- ML --> 
-          <div class="class_project" id="ml"> 
+          <div class="class_project" id="ml-0"> 
             <div class="class_project_header row"> 
               <div class="class_project_title col-9">
                 <h3> Online signature verification system based on HMM </h3> 
@@ -389,7 +410,6 @@
             </div> 
 
             <div class="diy-h4"> It is an online signature verification system using Gaussian - Hidden Markov Chain. It provides high accuracy and efficiency even if the size of training data is very small (only 15 samples for training a model). 
-            <br/> <br/> 
             By examining ERR (Error Equal Rate) on testing data, it shows that my implementation achieved accuracy greater than 90%. 
             <br/> <br/> 
             <a onclick="display('comp4121_report')"> Click here to see the whole report => </a> 
@@ -406,7 +426,7 @@
           <br/> <br/> <br/> <br/> 
 
           <!-- web --> 
-          <div class="class_project" id="web"> 
+          <div class="class_project" id="web-1"> 
             <div class="class_project_header row"> 
               <div class="class_project_title col-9">
                 <h3> Bitter - A simple twitter-like social website </h3> 
@@ -428,7 +448,10 @@
 
           <br/> <br/> <br/> <br/> 
 
-          <div class="class_project" id="os"> 
+
+
+          <!-- 
+          <div class="class_project" id="web-2"> 
             <div class="class_project_header row"> 
               <div class="class_project_title col-9">
                 <h3>  </h3> 
@@ -438,10 +461,10 @@
                 <a href="#projects"> BACK TO PROJECTS </a>
               </div>
             </div>
-          </dir>
+          </dir> --> 
 
-          <!-- os --> 
-          <div class="class_project" id="os"> 
+          
+          <div class="class_project" id="web-2"> 
             <div class="class_project_header row"> 
               <div class="class_project_title col-9">
                 <h3> MoivE - A movie ticket booking website </h3> 
@@ -453,23 +476,28 @@
             </div> 
 
             It is my first web application, developed when I was a second year student, as an assessment for a course. We are not allowed to use any libraries in this assignment, so all the functions such as session-based shopping cart and animations are implemented by myself. Relational database MySQL is used for storing order information. 
-
+            <br/> 
             <a href=""> Click here for viewing a demo verision of MoviE web site => </a>
-          </dir>
+          </dir> 
+
+
+          <!-- os --> 
+
 
         </div>
 
       </section>
 
-
-    <!-- Bootstrap core JavaScript -->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript"> 
+      document.
+    </script>
 
     <!-- Plugin JavaScript -->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script> 
 
-
+    <!-- Bootstrap core JavaScript -->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom scripts for this template -->
     <script src="js/resume.min.js"></script> 
